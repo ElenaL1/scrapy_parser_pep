@@ -1,3 +1,4 @@
+import csv
 import datetime
 from collections import defaultdict
 
@@ -16,11 +17,14 @@ class PepParsePipeline:
         now = datetime.datetime.now()
         timestamp = now.strftime(DATE_FORMAT)
         filename = self.results_dir / f'{SUMMARY_FILE}_{timestamp}.csv'
-        with open(filename, mode='w', encoding='utf-8') as f:
-            f.write('Статус,Количество\n')
+        with open(filename, 'w', newline='', encoding='utf-8') as cvsfile:
+            writer = csv.DictWriter(
+                cvsfile, fieldnames=['Статус', 'Количество'])
+            writer.writeheader()
             for status, count in self.statuses.items():
-                f.write(f'{status},{count}\n')
-            f.write(f'Total,{sum(self.statuses.values())}\n')
+                writer.writerow({'Статус': status, 'Количество': count})
+            writer.writerow(
+                {'Статус': 'Total', 'Количество': sum(self.statuses.values())})
 
     def process_item(self, item, spider):
         self.statuses[item['status']] += 1
