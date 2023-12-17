@@ -18,13 +18,14 @@ class PepParsePipeline:
         timestamp = now.strftime(DATE_FORMAT)
         filename = self.results_dir / f'{SUMMARY_FILE}_{timestamp}.csv'
         with open(filename, 'w', newline='', encoding='utf-8') as cvsfile:
-            writer = csv.DictWriter(
-                cvsfile, fieldnames=['Статус', 'Количество'])
-            writer.writeheader()
-            for status, count in self.statuses.items():
-                writer.writerow({'Статус': status, 'Количество': count})
-            writer.writerow(
-                {'Статус': 'Total', 'Количество': sum(self.statuses.values())})
+            writer = csv.writer(cvsfile, delimiter=',')
+            writer.writerows(
+                (
+                    ('Статус', 'Количество'),
+                    *self.statuses.items(),
+                    ('Total', sum(self.statuses.values()))
+                )
+            )
 
     def process_item(self, item, spider):
         self.statuses[item['status']] += 1
